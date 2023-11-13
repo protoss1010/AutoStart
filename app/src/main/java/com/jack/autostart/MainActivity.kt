@@ -99,22 +99,12 @@ fun AppsInfoScreen(viewModel: AppListViewModel) {
                         Modifier
                             .combinedClickable(
                                 onClick = {
-//                                    AppLauncherUtils.launchAppWithPackageName(
-//                                        BaseApplication.context,
-//                                        appInfo.packageName
-//                                    )
                                     viewModel.addSelectItem(appInfo)
                                 },
                                 onLongClick = {
                                     viewModel.removeSelectItem(appInfo)
                                 }
                             )
-//                            .clickable {
-//                                AppLauncherUtils.launchAppWithPackageName(
-//                                    BaseApplication.context,
-//                                    appInfo.packageName
-//                                )
-//                            }
                             .size(80.dp)
                     )
                     Divider(modifier = Modifier.padding(vertical = 8.dp)) // Add a divider between items
