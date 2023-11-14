@@ -40,19 +40,6 @@ class AppListViewModel : ViewModel() {
         }
     }
 
-    // 添加一個函數用來更新特定元素
-    fun updateItem(updatedAppInfo: AppInfo) {
-        val index = appsInfo.indexOfFirst { it.packageName == updatedAppInfo.packageName }
-        if (index != -1) {
-            // 找到元素，更新它
-            appsInfo[index] = updatedAppInfo
-        } else {
-            // 如果元素不存在，可以選擇添加它或執行其他處理邏輯
-            // appsInfo.add(updatedAppInfo)
-            // 或者執行其他處理邏輯
-        }
-    }
-
     fun addSelectItem(appInfo: AppInfo) {
         if (!selectedAppsInfo.any { it == appInfo }) {
             selectedAppsInfo.add(appInfo)
