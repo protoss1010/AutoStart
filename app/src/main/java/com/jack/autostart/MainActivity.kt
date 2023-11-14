@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -30,6 +31,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.toDrawable
 import com.jack.autostart.AppListViewModel.AppInfo
 import com.jack.autostart.ui.theme.AutoStartTheme
+import com.jack.autostart.utils.AppLauncherUtils
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,7 +65,7 @@ class MainActivity : ComponentActivity() {
         GlobalScope.launch {
             for (appInfo in viewModel.getSelectedAppsInfo()) {
                 delay(3000)
-//                AppLauncherUtils.launchAppWithPackageName(this@MainActivity, appInfo.packageName)
+                AppLauncherUtils.launchAppWithPackageName(this@MainActivity, appInfo.packageName)
             }
         }
     }
@@ -101,7 +103,7 @@ fun AppsInfoScreen(
                             )
                             .padding(10.dp)) {
                             val bitmap: ImageBitmap = try {
-                                appInfo.icon.toBitmap().asImageBitmap()
+                                appInfo.icon!!.toBitmap().asImageBitmap()
                             } catch (_: Exception) {
                                 ImageBitmap(100, 100)
                             }
@@ -117,14 +119,11 @@ fun AppsInfoScreen(
                                 Text(text = appInfo.packageName)
                             }
                             Spacer(Modifier.weight(1f))
-                            var order = -1
-                            for ((selectedIndex, selected) in selectedAppsInfo.withIndex()) {
-                                if (appInfo == selected) {
-                                    order = selectedIndex + 1
-                                }
-                            }
-                            if (order != -1) {
-                                Text(text = order.toString())
+                            if (appInfo.order != -1) {
+                                Text(
+                                    text = appInfo.order.toString(),
+                                    modifier = Modifier.align(CenterVertically)
+                                )
                             }
                         }
                         Divider()
