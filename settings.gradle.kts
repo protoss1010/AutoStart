@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Auto Atart"
+rootProject.name = "Auto Start"
 include(":app")
  
