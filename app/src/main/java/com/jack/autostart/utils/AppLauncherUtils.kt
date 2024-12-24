@@ -1,10 +1,11 @@
 package com.jack.autostart.utils
 
-import android.content.Context
+import com.jack.autostart.app.BaseApplication
 
 object AppLauncherUtils {
 
-    fun launchAppWithPackageName(context: Context, packageName: String) {
+    fun launchAppWithPackageName(packageName: String) {
+        val context = BaseApplication.context
         val intent = context.packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
             context.startActivity(intent)

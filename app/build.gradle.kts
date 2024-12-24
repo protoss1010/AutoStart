@@ -1,3 +1,8 @@
+import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import io.netty.handler.codec.http.HttpHeaders.getDate
+import java.text.SimpleDateFormat
+import java.util.Date
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,14 +10,14 @@ plugins {
 
 android {
     namespace = "com.jack.autostart"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.jack.autostart"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -21,6 +26,16 @@ android {
     }
 
     buildTypes {
+        applicationVariants.all {
+            outputs.all {
+                val versionName = defaultConfig.versionName
+                val buildType = buildType.name
+                val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+                val outputFileName = "AutoStart_${versionName}_${buildType}_${timestamp}.apk"
+                (this as BaseVariantOutputImpl).outputFileName = outputFileName
+                println("Apk output file name: $outputFileName")
+            }
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -61,6 +76,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
     implementation("com.google.code.gson:gson:2.9.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.5")
+    implementation("androidx.appcompat:appcompat:1.7.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

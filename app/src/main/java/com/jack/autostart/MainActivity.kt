@@ -1,10 +1,15 @@
 package com.jack.autostart
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
@@ -30,19 +35,23 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.graphics.drawable.toDrawable
 import com.jack.autostart.AppListViewModel.AppInfo
+import com.jack.autostart.app.BaseApplication
 import com.jack.autostart.ui.theme.AutoStartTheme
 import com.jack.autostart.utils.AppLauncherUtils
+import com.jack.autostart.utils.OnActResultDelegateFragment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class MainActivity : ComponentActivity() {
+private val TAG = MainActivity::class.simpleName
+
+class MainActivity : AppCompatActivity() {
 
     private val viewModel: AppListViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("MainActivity", "onCreate")
+        Log.d(TAG, "onCreate")
         setContent {
             AutoStartTheme {
                 // A surface container using the 'background' color from the theme
@@ -61,11 +70,33 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+        checkDrawOverlaysPermission()
+    }
 
+    private fun checkDrawOverlaysPermission() {
+        val context = BaseApplication.context
+        if (!Settings.canDrawOverlays(context)) {
+            val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+            intent.setData(Uri.parse("package:" + context.packageName))
+            OnActResultDelegateFragment.request(supportFragmentManager)
+                .startForResult(intent, OnActResultDelegateFragment.ResultCallback {
+                    if (Settings.canDrawOverlays(context)) {
+                        startLaunchApp()
+                    } else {
+                        Toast.makeText(context, "Overlay permission denied", Toast.LENGTH_LONG).show()
+                    }
+                })
+        } else {
+            startLaunchApp()
+        }
+    }
+
+    private fun startLaunchApp() {
         GlobalScope.launch {
             for (appInfo in viewModel.getSelectedAppsInfo()) {
-                delay(3000)
-                AppLauncherUtils.launchAppWithPackageName(this@MainActivity, appInfo.packageName)
+                delay(5000)
+                Log.d(TAG, "appInfo $appInfo")
+                AppLauncherUtils.launchAppWithPackageName(appInfo.packageName)
             }
         }
     }
@@ -82,7 +113,7 @@ fun AppsInfoScreen(
     appsInfo: List<AppInfo>,
     selectedAppsInfo: List<AppInfo>,
     onClick: (AppInfo) -> Unit,
-    onLongClick: (AppInfo) -> Unit
+    onLongClick: (AppInfo) -> Unit,
 ) {
     Column {
         if (appsInfo.isEmpty()) {
