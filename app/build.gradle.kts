@@ -1,5 +1,4 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
-import io.netty.handler.codec.http.HttpHeaders.getDate
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -17,14 +16,21 @@ android {
         minSdk = 24
         targetSdk = 33
         versionCode = 1
-        versionName = "1.1"
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
-
+    signingConfigs {
+        create("autoStartKey") {
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+            storeFile = file("../debug.keystore")
+            storePassword = "android"
+        }
+    }
     buildTypes {
         applicationVariants.all {
             outputs.all {
@@ -36,7 +42,11 @@ android {
                 println("Apk output file name: $outputFileName")
             }
         }
+        debug {
+            signingConfig = signingConfigs.getByName("autoStartKey")
+        }
         release {
+            signingConfig = signingConfigs.getByName("autoStartKey")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

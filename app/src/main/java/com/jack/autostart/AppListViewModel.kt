@@ -3,6 +3,7 @@ package com.jack.autostart
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.isTraceInProgress
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
@@ -20,7 +21,7 @@ private const val AUTO_START_KEY = "AUTO_START_APPS"
 class AppListViewModel : ViewModel() {
 
     val appsInfo = mutableStateListOf<AppInfo>()
-    val selectedAppsInfo = mutableStateListOf<AppInfo>()
+    private val selectedAppsInfo = mutableStateListOf<AppInfo>()
 
     fun getAllInstalledApps() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -49,24 +50,25 @@ class AppListViewModel : ViewModel() {
             }
             appsInfo.add(appInfo)
         }
+        appsInfo.sortBy { it.order }
     }
 
     fun addSelectItem(appInfo: AppInfo) {
         if (!selectedAppsInfo.any { it == appInfo }) {
             selectedAppsInfo.add(appInfo)
         }
-        updateApps()
+        updateInfoApps()
         saveSelectedAppsInfo()
     }
 
     fun removeSelectItem(appInfo: AppInfo) {
         selectedAppsInfo.remove(appInfo)
-        updateApps()
+        updateInfoApps()
         saveSelectedAppsInfo()
     }
 
-    private fun updateApps() {
-        appsInfo.forEach { info -> info.order = -1 }
+    private fun updateInfoApps() {
+        appsInfo.forEach { info -> info.order = 9999 }
         for (info in appsInfo) {
             for ((index, itemSelected) in selectedAppsInfo.withIndex()) {
                 if (itemSelected == info) {
@@ -74,13 +76,10 @@ class AppListViewModel : ViewModel() {
                 }
             }
         }
+        appsInfo.sortBy { it.order }
     }
 
     private fun saveSelectedAppsInfo() {
-        val mutableListOf = mutableListOf<LaunchList>()
-        for (launchList in selectedAppsInfo) {
-            mutableListOf.add(LaunchList(launchList.appName, launchList.packageName))
-        }
         SharedPrefsUtils.setStringPreference(AUTO_START_KEY, GsonUtils.toJson(selectedAppsInfo))
     }
 
@@ -96,7 +95,7 @@ class AppListViewModel : ViewModel() {
 
     data class LaunchList(
         val appName: String,
-        val packageName: String
+        val packageName: String,
     )
 
     data class AppInfo(
@@ -104,7 +103,7 @@ class AppListViewModel : ViewModel() {
         val packageName: String,
         @Transient val icon: Drawable? = null,
     ) {
-        var order by mutableIntStateOf(-1)
+        var order by mutableIntStateOf(9999)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

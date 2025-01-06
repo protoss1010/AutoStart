@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +20,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,6 +32,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -60,11 +63,8 @@ class MainActivity : AppCompatActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     viewModel.getAllInstalledApps()
-                    val appsInfo = viewModel.appsInfo
-                    val selectedAppsInfo = viewModel.selectedAppsInfo
                     AppsInfoScreen(
-                        appsInfo,
-                        selectedAppsInfo,
+                        viewModel.appsInfo,
                         { viewModel.addSelectItem(it) },
                         { viewModel.removeSelectItem(it) })
                 }
@@ -79,13 +79,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
             intent.setData(Uri.parse("package:" + context.packageName))
             OnActResultDelegateFragment.request(supportFragmentManager)
-                .startForResult(intent, OnActResultDelegateFragment.ResultCallback {
+                .startForResult(intent) {
                     if (Settings.canDrawOverlays(context)) {
                         startLaunchApp()
                     } else {
                         Toast.makeText(context, "Overlay permission denied", Toast.LENGTH_LONG).show()
                     }
-                })
+                }
         } else {
             startLaunchApp()
         }
@@ -94,9 +94,9 @@ class MainActivity : AppCompatActivity() {
     private fun startLaunchApp() {
         GlobalScope.launch {
             for (appInfo in viewModel.getSelectedAppsInfo()) {
-                delay(5000)
-                Log.d(TAG, "appInfo $appInfo")
                 AppLauncherUtils.launchAppWithPackageName(appInfo.packageName)
+                Log.d(TAG, "appInfo $appInfo")
+                delay(5000)
             }
         }
     }
@@ -111,7 +111,6 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun AppsInfoScreen(
     appsInfo: List<AppInfo>,
-    selectedAppsInfo: List<AppInfo>,
     onClick: (AppInfo) -> Unit,
     onLongClick: (AppInfo) -> Unit,
 ) {
@@ -150,7 +149,7 @@ fun AppsInfoScreen(
                                 Text(text = appInfo.packageName)
                             }
                             Spacer(Modifier.weight(1f))
-                            if (appInfo.order != -1) {
+                            if (appInfo.order != 9999) {
                                 Text(
                                     text = appInfo.order.toString(),
                                     modifier = Modifier.align(CenterVertically)
@@ -167,22 +166,21 @@ fun AppsInfoScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun AppsInfoScreen() {
+fun AppsInfoScreenPreview() {
     AutoStartTheme {
         AppsInfoScreen(
             listOf(
                 AppInfo(
                     "Settings",
                     "com.setting",
-                    icon = R.drawable.ic_launcher_foreground.toDrawable()
+                    icon = R.drawable.ic_launcher.toDrawable()
                 ),
                 AppInfo(
                     "Camera",
                     "com.google.camera",
-                    icon = R.drawable.ic_launcher_foreground.toDrawable()
+                    icon = R.drawable.ic_launcher.toDrawable()
                 )
             ),
-            listOf(),
             {},
             {})
     }
