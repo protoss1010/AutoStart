@@ -1,11 +1,12 @@
 package com.jack.autostart.app;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 
 public class BaseApplication extends Application {
 
-    private static Context context;
+    @SuppressLint("StaticFieldLeak") private static Context context;
 
     public static Context getContext() {
         return context;

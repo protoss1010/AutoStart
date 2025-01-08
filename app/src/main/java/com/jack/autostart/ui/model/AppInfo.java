@@ -6,8 +6,8 @@ public class AppInfo {
     private final String mAppName;
     private final String mPackageName;
     private final transient Drawable mIcon;
-    private int mOrder = AppListViewModel.NO_ORDER;
-    private int mDelaySec = AppListViewModel.DEFAULT_DELAY_SEC;
+    private int mOrder = AppInfoListViewModel.NO_ORDER;
+    private int mDelaySec = AppInfoListViewModel.DEFAULT_DELAY_SEC;
 
     public AppInfo(String appName, String packageName, Drawable icon) {
         mAppName = appName;

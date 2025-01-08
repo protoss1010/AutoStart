@@ -1,6 +1,6 @@
 package com.jack.autostart.ui.list;
 
-import static com.jack.autostart.ui.model.AppListViewModel.NO_ORDER;
+import static com.jack.autostart.ui.model.AppInfoListViewModel.NO_ORDER;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +14,9 @@ import com.jack.autostart.databinding.AppItemBinding;
 
 import java.util.ArrayList;
 
-public class AppListItemAdapter extends RecyclerView.Adapter<AppListItemAdapter.VideoOutputViewHolder> {
+public class AppInfoListItemAdapter extends RecyclerView.Adapter<AppInfoListItemAdapter.VideoOutputViewHolder> {
 
-    private static final String TAG = AppListItemAdapter.class.getSimpleName();
+    private static final String TAG = AppInfoListItemAdapter.class.getSimpleName();
 
     private final ArrayList<AppInfo> mVideoOutputs;
 
@@ -32,7 +32,7 @@ public class AppListItemAdapter extends RecyclerView.Adapter<AppListItemAdapter.
         void onPlusClick(AppInfo appInfo);
     }
 
-    public AppListItemAdapter(ArrayList<AppInfo> appInfos, OnItemListener onItemListener) {
+    public AppInfoListItemAdapter(ArrayList<AppInfo> appInfos, OnItemListener onItemListener) {
         mVideoOutputs = appInfos;
         mOnItemListener = onItemListener;
     }
@@ -93,5 +93,4 @@ public class AppListItemAdapter extends RecyclerView.Adapter<AppListItemAdapter.
             });
         }
     }
-
 }

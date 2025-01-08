@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class AppListViewModel extends ViewModel {
+public class AppInfoListViewModel extends ViewModel {
 
-    private static final String TAG = AppListViewModel.class.getSimpleName();
+    private static final String TAG = AppInfoListViewModel.class.getSimpleName();
 
     private static final String AUTO_START_KEY = "AUTO_START_APPS";
 
@@ -31,23 +31,21 @@ public class AppListViewModel extends ViewModel {
         mAppInfos.clear();
         mSelectedAppsInfo.clear();
 
-        PackageManager packageManager = BaseApplication.getContext().getPackageManager();
+        List<AppInfo> selectedAppsInfo = getSelectedAppsInfo();
         Intent intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        List<AppInfo> selectedAppsInfo = getSelectedAppsInfo();
+        PackageManager packageManager = BaseApplication.getContext().getPackageManager();
         List<ResolveInfo> resolveInfoList = packageManager.queryIntentActivities(intent, 0);
         for (ResolveInfo resolveInfo : resolveInfoList) {
             AppInfo appInfo = new AppInfo(
                     resolveInfo.loadLabel(packageManager).toString(),
                     resolveInfo.activityInfo.packageName,
                     resolveInfo.loadIcon(packageManager));
-            for (int index = 0; index < selectedAppsInfo.size(); index++) {
-                AppInfo itemSelected = selectedAppsInfo.get(index);
-                if (itemSelected.equals(appInfo)) {
+            for (AppInfo selectedItem : selectedAppsInfo) {
+                if (selectedItem.equals(appInfo)) {
+                    appInfo.setOrder(selectedItem.getOrder());
+                    appInfo.setDelaySec(selectedItem.getDelaySec());
                     mSelectedAppsInfo.add(appInfo);
-                    appInfo.setOrder(index + 1);
-                    appInfo.setDelaySec(itemSelected.getDelaySec());
                 }
             }
             mAppInfos.add(appInfo);
@@ -111,5 +109,4 @@ public class AppListViewModel extends ViewModel {
         String json = SharedPrefsUtils.getStringPreference(AUTO_START_KEY, GsonUtils.toJson(new ArrayList<>()));
         return GsonUtils.fromJson(json, new TypeToken<List<AppInfo>>() {}.getType());
     }
-
 }

@@ -15,22 +15,22 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 
 import com.jack.autostart.app.BaseApplication;
 import com.jack.autostart.databinding.MainActivityBinding;
-import com.jack.autostart.ui.list.AppListItemAdapter;
+import com.jack.autostart.ui.list.AppInfoListItemAdapter;
 import com.jack.autostart.ui.model.AppInfo;
-import com.jack.autostart.ui.model.AppListViewModel;
+import com.jack.autostart.ui.model.AppInfoListViewModel;
 import com.jack.autostart.utils.AppLauncherUtils;
 import com.jack.autostart.utils.handler.MyHandlerThread;
 
+import java.util.Comparator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    private AppListViewModel mViewModel;
-
     private MainActivityBinding mBinding;
-    private AppListItemAdapter mAdapter;
+    private AppInfoListViewModel mViewModel;
+    private AppInfoListItemAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,18 +38,23 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate");
         mBinding = MainActivityBinding.inflate(LayoutInflater.from(MainActivity.this));
         setContentView(mBinding.getRoot());
-
-        mViewModel = new ViewModelProvider(this).get(AppListViewModel.class);
-        mViewModel.fetchAllInstalledApps();
-
-        mAdapter = new AppListItemAdapter(mViewModel.getAppInfos(), mOnItemListener);
-        mBinding.appList.setAdapter(mAdapter);
-        mBinding.appList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
+        initViewModel();
+        initView();
         checkDrawOverlaysPermission();
     }
 
-    private final AppListItemAdapter.OnItemListener mOnItemListener = new AppListItemAdapter.OnItemListener() {
+    private void initViewModel() {
+        mViewModel = new ViewModelProvider(this).get(AppInfoListViewModel.class);
+        mViewModel.fetchAllInstalledApps();
+    }
+
+    private void initView() {
+        mAdapter = new AppInfoListItemAdapter(mViewModel.getAppInfos(), mOnItemListener);
+        mBinding.appList.setAdapter(mAdapter);
+        mBinding.appList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
+
+    private final AppInfoListItemAdapter.OnItemListener mOnItemListener = new AppInfoListItemAdapter.OnItemListener() {
         @Override
         public void onItemClick(AppInfo appInfo) {
             mViewModel.addSelectItem(appInfo);
@@ -94,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void startLaunchApp() {
         List<AppInfo> selectedAppsInfo = mViewModel.getSelectedAppsInfo();
+        selectedAppsInfo.sort(Comparator.comparingInt(AppInfo::getOrder));
         MyHandlerThread handler = new MyHandlerThread();
         long totalDelay = 0;
         for (AppInfo appInfo : selectedAppsInfo) {
@@ -111,5 +117,4 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
     }
-
 }
